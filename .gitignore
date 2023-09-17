@@ -388,5 +388,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Junctions to SpaceEngineers & torch-server for references
-GameBinaries
-TorchBinaries
+Plugin/GameBinaries
+Plugin/TorchBinaries
