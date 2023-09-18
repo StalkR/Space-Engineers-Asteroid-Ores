@@ -1,6 +1,4 @@
-﻿using NLog;
-using Sandbox.Game.World.Generator;
-using Sandbox.ModAPI;
+﻿using Sandbox.Game.World.Generator;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -11,22 +9,9 @@ namespace StalkR.AsteroidOres
 {
     internal class Materials
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         static HashSet<string> ores = new HashSet<string>();
 
         internal static bool ShouldGenerate(MyObjectSeed myObjectSeed, object myCompositeShapeProvider)
-        {
-            var should = shouldGenerate(myObjectSeed, myCompositeShapeProvider);
-            if (!should)
-            {
-                // tell clients to delete the procedurally generated voxelmap at this location
-                MyAPIGateway.Multiplayer.SendMessageToOthers(Plugin.MOD_ID, MyAPIGateway.Utilities.SerializeToBinary<Vector3D>(myObjectSeed.BoundingVolume.Center));
-            }
-            return should;
-        }
-
-        private static bool shouldGenerate(MyObjectSeed myObjectSeed, object myCompositeShapeProvider)
         {
             Vector3D p = myObjectSeed.BoundingVolume.Center;
             ListOres(myCompositeShapeProvider);

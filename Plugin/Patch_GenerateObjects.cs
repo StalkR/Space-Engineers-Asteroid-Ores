@@ -83,7 +83,7 @@ namespace StalkR.AsteroidOres
             }
             if (found == -1)
             {
-                Log.Error("injection not found");
+                Log.Error("patch site not found");
                 return code;
             }
 
@@ -97,7 +97,7 @@ namespace StalkR.AsteroidOres
             inj.Add(new CodeInstruction(OpCodes.Ldloc_S, shapeProvider));
 
             code.InsertRange(found, inj);
-            Log.Info("injection successful");
+            Log.Info("patch successful");
             return code;
         }
     }

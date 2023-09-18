@@ -7,21 +7,11 @@
     <ProjectGuid>{DB3F9715-2352-4BAB-B706-FB034FEF1427}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AsteroidOres</RootNamespace>
+    <RootNamespace>StalkR.AsteroidOres</RootNamespace>
     <AssemblyName>AsteroidOres</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -38,23 +28,23 @@
       <HintPath>0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>TorchBinaries\NLog.dll</HintPath>
+      <HintPath>..\TorchBinaries\NLog.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ProtoBuf.Net">
-      <HintPath>GameBinaries\ProtoBuf.Net.dll</HintPath>
+      <HintPath>..\GameBinaries\ProtoBuf.Net.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ProtoBuf.Net.Core">
-      <HintPath>GameBinaries\ProtoBuf.Net.Core.dll</HintPath>
+      <HintPath>..\GameBinaries\ProtoBuf.Net.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sandbox.Common">
-      <HintPath>GameBinaries\Sandbox.Common.dll</HintPath>
+      <HintPath>..\GameBinaries\Sandbox.Common.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sandbox.Game">
-      <HintPath>GameBinaries\Sandbox.Game.dll</HintPath>
+      <HintPath>..\GameBinaries\Sandbox.Game.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="System" />
@@ -63,35 +53,36 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Xml" />
     <Reference Include="Torch">
-      <HintPath>TorchBinaries\Torch.dll</HintPath>
+      <HintPath>..\TorchBinaries\Torch.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Torch.API">
-      <HintPath>TorchBinaries\Torch.API.dll</HintPath>
+      <HintPath>..\TorchBinaries\Torch.API.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VRage">
-      <HintPath>GameBinaries\VRage.dll</HintPath>
+      <HintPath>..\GameBinaries\VRage.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VRage.Game">
-      <HintPath>GameBinaries\VRage.Game.dll</HintPath>
+      <HintPath>..\GameBinaries\VRage.Game.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VRage.Input">
-      <HintPath>GameBinaries\VRage.Input.dll</HintPath>
+      <HintPath>..\GameBinaries\VRage.Input.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VRage.Library">
-      <HintPath>GameBinaries\VRage.Library.dll</HintPath>
+      <HintPath>..\GameBinaries\VRage.Library.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VRage.Math">
-      <HintPath>GameBinaries\VRage.Math.dll</HintPath>
+      <HintPath>..\GameBinaries\VRage.Math.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Communication.cs" />
     <Compile Include="Materials.cs" />
     <Compile Include="Patch_GenerateObjects.cs" />
     <Compile Include="Plugin.cs" />

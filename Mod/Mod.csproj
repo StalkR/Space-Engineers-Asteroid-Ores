@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0176B094-6E96-4D54-9882-F82E064B145F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StalkR.AsteroidOres</RootNamespace>
+    <AssemblyName>AsteroidOresMod</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PdbPath>none</PdbPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\TorchBinaries\NLog.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ProtoBuf.Net">
+      <HintPath>..\GameBinaries\ProtoBuf.Net.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ProtoBuf.Net.Core">
+      <HintPath>..\GameBinaries\ProtoBuf.Net.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sandbox.Common">
+      <HintPath>..\GameBinaries\Sandbox.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sandbox.Game">
+      <HintPath>..\GameBinaries\Sandbox.Game.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Torch">
+      <HintPath>..\TorchBinaries\Torch.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Torch.API">
+      <HintPath>..\TorchBinaries\Torch.API.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRage">
+      <HintPath>..\GameBinaries\VRage.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRage.Game">
+      <HintPath>..\GameBinaries\VRage.Game.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRage.Input">
+      <HintPath>..\GameBinaries\VRage.Input.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRage.Library">
+      <HintPath>..\GameBinaries\VRage.Library.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VRage.Math">
+      <HintPath>..\GameBinaries\VRage.Math.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\Scripts\AsteroidOres\Mod.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+      del "$(ProjectDir)$(OutDir)AsteroidOresMod.dll"
+      xcopy /y /d /e /i "$(ProjectDir)Data" "$(ProjectDir)$(OutDir)Data"
+      xcopy /y /d "$(ProjectDir)metadata.mod" "$(ProjectDir)$(OutDir)"
+      xcopy /y /d "$(ProjectDir)modinfo.sbmi" "$(ProjectDir)$(OutDir)"
+      powershell Compress-Archive -Path "$(ProjectDir)$(OutDir)*" -DestinationPath "$(ProjectDir)$(OutDir)AsteroidOresMod.zip" -Force
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
