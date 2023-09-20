@@ -92,7 +92,7 @@ namespace StalkR.AsteroidOres
             inj.Add(new CodeInstruction(OpCodes.Stloc_S, shapeProvider)); // store: MyCompositeShapeProvider shapeProvider = CreateAsteroidShape()
             inj.Add(new CodeInstruction(OpCodes.Ldloc_1)); // myObjectSeed
             inj.Add(new CodeInstruction(OpCodes.Ldloc_S, shapeProvider));
-            inj.Add(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Materials), nameof(Materials.ShouldGenerate))));
+            inj.Add(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Check), nameof(Check.ShouldGenerate))));
             inj.Add(new CodeInstruction(OpCodes.Brfalse, continueLabel));
             inj.Add(new CodeInstruction(OpCodes.Ldloc_S, shapeProvider));
 

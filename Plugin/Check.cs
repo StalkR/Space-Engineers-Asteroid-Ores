@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace StalkR.AsteroidOres
 {
-    internal class Materials
+    internal class Check
     {
         static HashSet<string> ores = new HashSet<string>();
 
@@ -18,9 +18,8 @@ namespace StalkR.AsteroidOres
 
             foreach (var zone in Plugin.Config.Zones)
             {
-                if (Vector3D.DistanceSquared(p, zone.Center) < zone.Radius * zone.Radius)
+                if (zone.Contains(p))
                 {
-
                     if (zone.AllOres) return true;
                     foreach (var ore in ores)
                     {

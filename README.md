@@ -33,48 +33,75 @@ There are 2 main sections:
     (`<Ores><string>Stone</string></Ores>`)
   - any asteroid which would spawn with ores not listed in there will not
     spawn
-- zones, identified by a sphere at a specified center and radius
-  - same as above, you can specific if all ores spawn, and if not, which ores
-    can spawn
+- zones
+  - asteroid spherical field: specify center and max radius
+  - asteroid hollow spherical field: also specify a min radius
+  - asteroid ring: also specify a height, and set the planet's CloudLayer with
+    RotationAxis 0/0/0 so it's aligned on the Y plane; gives a washer shape
 
 ### Example
 
 Imagine we want the following:
-- in space, all ores can spawn except `Platinum`
-  - we use `<AllOres>false</AllOres>` then list all ores except `Platinum`
-- for 100km around `X:0` `Y:0` `Z:0`, we want to allow all asteroids to spawn,
-  so including `Platinum`
-  - we define the zone center and radius, and use `<AllOres>true</AllOres>`
+- empty space, no asteroids
+  - use: `<AllOres>false</AllOres>` then list no ores
+- an asteroid ring with all ores except `Platinum`
+  - use: `<Center>`, `<MinRadius>`, `<MaxRadius>` and `<Height>` to define the
+    asteroid ring characteristics
+  - use: `<AllOres>false</AllOres>` then list all ores except `Platinum`
+- an asteroid cluster with all ores
+  - use: `<Center>` and `<MaxRadius>` to define the spherical field
+  - use: `<AllOres>true</AllOres>` so all ores can spawn
+
 
 The config then looks like this:
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <Config xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- no ores spawn in space, so no asteroids -->
   <AllOres>false</AllOres>
-  <Ores>
-    <string>Cobalt</string>
-    <string>Gold</string>
-    <string>Ice</string>
-    <string>Iron</string>
-    <string>Magnesium</string>
-    <string>Nickel</string>
-    <string>Stone</string>
-    <string>Silicon</string>
-    <string>Silver</string>
-    <string>Uranium</string>
-  </Ores>
+  <Ores />
+
   <Zones>
+
+    <!-- an asteroid ring around planet X:0 Y:0 Z:0, min 130km, max 80km, height 10km, with all ores except Platinum -->
     <Zone>
-      <AllOres>true</AllOres>
-      <Ores />
+      <AllOres>false</AllOres>
+      <Ores>
+        <string>Cobalt</string>
+        <string>Gold</string>
+        <string>Ice</string>
+        <string>Iron</string>
+        <string>Magnesium</string>
+        <string>Nickel</string>
+        <string>Stone</string>
+        <string>Silicon</string>
+        <string>Silver</string>
+        <string>Uranium</string>
+      </Ores>
       <Center>
         <X>0</X>
         <Y>0</Y>
         <Z>0</Z>
       </Center>
-      <Radius>100000</Radius>
+      <MaxRadius>130000</MaxRadius>
+      <MinRadius>80000</MinRadius>
+      <Height>10000</Height>
     </Zone>
+
+    <!-- an asteroid cluster centered on X:1000000 Y:1000000 Z:1000000 of radius 100km, with all ores -->
+    <Zone>
+      <AllOres>true</AllOres>
+      <Ores />
+      <Center>
+        <X>1000000</X>
+        <Y>1000000</Y>
+        <Z>1000000</Z>
+      </Center>
+      <MaxRadius>100000</MaxRadius>
+    </Zone>
+
   </Zones>
 </Config>
 ```
