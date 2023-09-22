@@ -33,9 +33,10 @@ namespace StalkR.AsteroidOres
             if (MyAPIGateway.Multiplayer.IsServer) return;
 
             if (MyAPIGateway.Session == null
+                || MyAPIGateway.Session.IsCameraUserControlledSpectator
                 || MyAPIGateway.Session.Player == null
                 || MyAPIGateway.Session.SessionSettings == null) return;
-            var player = MyAPIGateway.Session.Player;
+            var position = MyAPIGateway.Session.Player.GetPosition();
 
             // twice the view distance, otherwise spectator view can see
             // asteroids that only disappear when character moves closer
@@ -44,7 +45,7 @@ namespace StalkR.AsteroidOres
             // get all voxels in range, delete the ones we need to
             voxels.Clear();
             inRange.Clear();
-            var sphere = new BoundingSphereD(player.GetPosition(), range);
+            var sphere = new BoundingSphereD(position, range);
             MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, voxels);
             foreach (var voxel in voxels)
             {
