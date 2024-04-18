@@ -24,8 +24,9 @@ regions of space.
 The plugin patches the server-side procedural asteroid generation so that only
 asteroids with the desired ores spawn.
 
-Because clients are also generating asteroids procedurally, the server tells
-them of any asteroid that they should delete, and everything stays in sync.
+Because clients are also generating asteroids procedurally, the plugin uses a
+companion mod where the server tells the clients which asteroids can spawn or
+not, and everything stays in sync.
 
 ## Config
 
@@ -134,11 +135,6 @@ asteroid generator settings (cf. `AsteroidGenerators.sbc` in the game files).
 
 Make sure you installed the companion [mod] on your server so deleted asteroids
 are synced to clients.
-
-Known issue: [spectator mode][issue3] is bugged, if you used it and can fly
-through asteroids or don't see asteroids, then reconnect to be sure.
-
-[issue3]: https://github.com/StalkR/Space-Engineers-Asteroid-Ores/issues/3
 
 ## Bugs, comments, questions
 

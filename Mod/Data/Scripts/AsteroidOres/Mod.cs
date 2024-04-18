@@ -2,7 +2,9 @@ using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game.Components;
-using VRageMath;
+using VRage.Game.ModAPI;
+using VRage.ModAPI;
+using VRage.Utils;
 
 namespace StalkR.AsteroidOres
 {
@@ -13,80 +15,145 @@ namespace StalkR.AsteroidOres
 
         public override void LoadData()
         {
-            if (MyAPIGateway.Multiplayer.IsServer) return;
+            base.LoadData();
             MyAPIGateway.Multiplayer.RegisterSecureMessageHandler(MOD_ID, messageHandler);
         }
 
         protected override void UnloadData()
         {
-            if (MyAPIGateway.Multiplayer.IsServer) return;
+            base.UnloadData();
+            MyAPIGateway.Entities.OnEntityAdd -= OnEntityAdd;
+            MyAPIGateway.Entities.OnEntityRemove -= OnEntityRemove;
             MyAPIGateway.Multiplayer.UnregisterSecureMessageHandler(MOD_ID, messageHandler);
         }
 
-        private List<MyVoxelBase> voxels = new List<MyVoxelBase>();
-        private HashSet<Vector3D> inRange = new HashSet<Vector3D>();
-        private HashSet<Vector3D> tracked = new HashSet<Vector3D>();
-        private List<Vector3D> request = new List<Vector3D>();
-
-        public override void UpdateBeforeSimulation()
+        public override void BeforeStart()
         {
-            if (MyAPIGateway.Multiplayer.IsServer) return;
-
-            if (MyAPIGateway.Session == null
-                || MyAPIGateway.Session.IsCameraUserControlledSpectator
-                || MyAPIGateway.Session.Player == null
-                || MyAPIGateway.Session.SessionSettings == null) return;
-            var position = MyAPIGateway.Session.Player.GetPosition();
-
-            // twice the view distance, otherwise spectator view can see
-            // asteroids that only disappear when character moves closer
-            var range = MyAPIGateway.Session.SessionSettings.ViewDistance * 2;
-
-            // get all voxels in range, delete the ones we need to
-            voxels.Clear();
-            inRange.Clear();
-            var sphere = new BoundingSphereD(position, range);
-            MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, voxels);
-            foreach (var voxel in voxels)
+            HashSet<IMyEntity> entities = new HashSet<IMyEntity>();
+            MyAPIGateway.Entities.GetEntities(entities, (IMyEntity entity) =>
             {
-                // skip MyPlanet, MyVoxelPhysics; only asteroids remain
-                if (!(voxel is MyVoxelMap)) continue;
-                if (deletes.Contains(voxel.PositionLeftBottomCorner))
-                {
-                    voxel.Delete();
-                    continue;
-                }
-                inRange.Add(voxel.PositionLeftBottomCorner);
-            }
-            deletes.Clear();
-
-            // forget voxels out of range
-            tracked.RemoveWhere(k => !inRange.Contains(k));
-
-            // track and request new voxels
-            request.Clear();
-            foreach (var v in inRange)
-            {
-                if (!tracked.Contains(v))
-                {
-                    tracked.Add(v);
-                    request.Add(v);
-                }
-            }
-
-            if (request.Count == 0) return;
-            MyAPIGateway.Multiplayer.SendMessageToServer(MOD_ID, MyAPIGateway.Utilities.SerializeToBinary(request.ToArray()));
+                OnEntityAdd(entity);
+                return false;
+            });
+            MyAPIGateway.Entities.OnEntityAdd += OnEntityAdd;
+            MyAPIGateway.Entities.OnEntityRemove += OnEntityRemove;
         }
 
-        HashSet<Vector3D> deletes = new HashSet<Vector3D>();
+        private HashSet<long> trackedEntityIds = new HashSet<long>();
+        private HashSet<IMyEntity> pending = new HashSet<IMyEntity>();
+
+        private void OnEntityAdd(IMyEntity entity)
+        {
+            if (!(entity is MyVoxelBase)) return;
+            if (!isAsteroid(entity as MyVoxelBase)) return;
+            var p = entity.GetPosition();
+            Log($"AsteroidOres: OnEntityAdd: X:{p.X} Y:{p.Y} Z:{p.Z}");
+            if (MyAPIGateway.Multiplayer.IsServer)
+            {
+                trackedEntityIds.Add(entity.EntityId);
+                return;
+            }
+            // client
+            if (!trackedEntityIds.Contains(entity.EntityId))
+            {
+                pending.Add(entity);
+                entity.Render.UpdateRenderObject(false);
+                entity.Physics.Deactivate();
+            }
+        }
+
+        private void OnEntityRemove(IMyEntity entity)
+        {
+            if (!(entity is MyVoxelBase)) return;
+            if (!isAsteroid(entity as MyVoxelBase)) return;
+            var p = entity.GetPosition();
+            Log($"AsteroidOres: OnEntityRemove: X:{p.X} Y:{p.Y} Z:{p.Z}");
+            trackedEntityIds.Remove(entity.EntityId);
+            updateClients = true;
+        }
+
+        private bool isAsteroid(MyVoxelBase voxel)
+        {
+            // skip MyPlanet, MyVoxelPhysics
+            if (!(voxel is MyVoxelMap)) return false;
+            // skip boulders
+            if (voxel.StorageName == null || !voxel.StorageName.StartsWith("Asteroid")) return false;
+            return true;
+        }
+
+        private List<IMyPlayer> players = new List<IMyPlayer>();
+        private bool updateClients = false;
+
+        public void UpdateBeforeSimulation100()
+        {
+            if (MyAPIGateway.Multiplayer.IsServer)
+            {
+                if (!updateClients) return;
+                updateClients = false;
+                players.Clear();
+                MyAPIGateway.Players.GetPlayers(players);
+                Log($"AsteroidOres: Update: send entity ids to clients ({players.Count})");
+                foreach (var player in players)
+                {
+                    if (player.SteamUserId == MyAPIGateway.Multiplayer.ServerId) continue;
+                    SendTrackedEntityIds(player.SteamUserId);
+                }
+                return;
+            }
+            // client
+            if (pending.Count == 0) return;
+            Log($"AsteroidOres: Update: asking server for tracked entity ids (pending: {pending.Count})");
+            MyAPIGateway.Multiplayer.SendMessageToServer(MOD_ID, MyAPIGateway.Utilities.SerializeToBinary(true));
+        }
+
+        private void SendTrackedEntityIds(ulong steamUserId)
+        {
+            MyAPIGateway.Multiplayer.SendMessageTo(MOD_ID, MyAPIGateway.Utilities.SerializeToBinary(trackedEntityIds), steamUserId);
+        }
 
         private void messageHandler(ushort handlerId, byte[] serialized, ulong senderPlayerId, bool isArrivedFromServer)
         {
-            if (!isArrivedFromServer) return;
-            foreach (var v in MyAPIGateway.Utilities.SerializeFromBinary<Vector3D[]>(serialized))
+            if (MyAPIGateway.Multiplayer.IsServer)
             {
-                deletes.Add(v);
+                Log($"AsteroidOres: messageHandler: sending client ({senderPlayerId}) tracked entity ids ({trackedEntityIds.Count})");
+                SendTrackedEntityIds(senderPlayerId);
+                return;
             }
+            // client
+            if (!isArrivedFromServer) return;
+            trackedEntityIds = MyAPIGateway.Utilities.SerializeFromBinary<HashSet<long>>(serialized);
+            Log($"AsteroidOres: messageHandler: received tracked entity ids ({trackedEntityIds.Count}), processing pending ({pending.Count})");
+            foreach (var entity in pending)
+            {
+                if (trackedEntityIds.Contains(entity.EntityId))
+                {
+                    var p = entity.GetPosition();
+                    Log($"AsteroidOres: messageHandler: activate X:{p.X} Y:{p.Y} Z:{p.Z}");
+                    entity.Render.UpdateRenderObject(true);
+                    entity.Physics.Activate();
+                }
+                else
+                {
+                    entity.Delete();
+                }
+            }
+            pending.Clear();
+        }
+
+        private int ticks = 0;
+        public override void UpdateBeforeSimulation()
+        {
+            ticks++;
+            if (ticks >= 100)
+            {
+                this.UpdateBeforeSimulation100();
+                ticks = 0;
+            }
+        }
+
+        private void Log(string message)
+        {
+            //MyLog.Default.WriteLineAndConsole(message);
         }
     }
 }

@@ -7,6 +7,9 @@ namespace StalkR.AsteroidOres
 {
     public class Config : ViewModel
     {
+        private bool _Debug = false;
+        public bool Debug { get => _Debug; set => SetValue(ref _Debug, value); }
+
         private bool _AllOres = true;
         private HashSet<string> _Ores = new HashSet<string>();
         private HashSet<Zone> _Zones = new HashSet<Zone>();

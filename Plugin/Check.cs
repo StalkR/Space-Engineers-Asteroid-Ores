@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using VRage.Game;
 using VRageMath;
-using static HarmonyLib.Code;
 
 namespace StalkR.AsteroidOres
 {
@@ -18,6 +17,7 @@ namespace StalkR.AsteroidOres
         {
             Vector3D p = myObjectSeed.BoundingVolume.Center;
             ListOres(myCompositeShapeProvider);
+            var oresList = string.Join("/", ores);
 
             foreach (var zone in Plugin.Config.Zones)
             {
@@ -25,36 +25,44 @@ namespace StalkR.AsteroidOres
                 {
                     if (zone.AllOres)
                     {
-                        //Log.Info(string.Format("Asteroid at X:{0} Y:{1} Z:{2} ({3}): contained in zone (X:{4} Y:{5} Z:{6} max:{7} min:{8} h:{9}), all ores: keep", p.X, p.Y, p.Z, string.Join("/", ores), zone.Center.X, zone.Center.Y, zone.Center.Z, zone.MaxRadius, zone.MinRadius, zone.Height));
+                        if (Plugin.Config.Debug) Log.Info($"Asteroid at X:{p.X} Y:{p.Y} Z:{p.Z} ({oresList}): contained in zone (X:{zone.Center.X} Y:{zone.Center.Y} Z:{zone.Center.Z} max:{zone.MaxRadius} min:{zone.MinRadius} h:{zone.Height}), all ores: keep");
                         return true;
                     }
                     foreach (var ore in ores)
                     {
                         if (!zone.Ores.Contains(ore))
                         {
-                            //Log.Info(string.Format("Asteroid at X:{0} Y:{1} Z:{2} ({3}): contained in zone (X:{4} Y:{5} Z:{6} max:{7} min:{8} h:{9}), does not contain {10}: remove", p.X, p.Y, p.Z, string.Join("/", ores), zone.Center.X, zone.Center.Y, zone.Center.Z, zone.MaxRadius, zone.MinRadius, zone.Height, ore));
+                            if (Plugin.Config.Debug) Log.Info($"Asteroid at X:{p.X} Y:{p.Y} Z:{p.Z} ({oresList}): contained in zone (X:{zone.Center.X} Y:{zone.Center.Y} Z:{zone.Center.Z} max:{zone.MaxRadius} min:{zone.MinRadius} h:{zone.Height}), does not contain {ore}: remove");
                             return false;
                         }
                     }
-                    //Log.Info(string.Format("Asteroid at X:{0} Y:{1} Z:{2} ({3}): contained in zone (X:{4} Y:{5} Z:{6} max:{7} min:{8} h:{9}), contains desired ores {10}: keep", p.X, p.Y, p.Z, string.Join("/", ores), zone.Center.X, zone.Center.Y, zone.Center.Z, zone.MaxRadius, zone.MinRadius, zone.Height, string.Join("/", zone.Ores)));
+                    if (Plugin.Config.Debug)
+                    {
+                        var zoneOresList = string.Join("/", zone.Ores);
+                        Log.Info($"Asteroid at X:{p.X} Y:{p.Y} Z:{p.Z} ({oresList}): contained in zone (X:{zone.Center.X} Y:{zone.Center.Y} Z:{zone.Center.Z} max:{zone.MaxRadius} min:{zone.MinRadius} h:{zone.Height}), contains desired ores {zoneOresList}: keep");
+                    }
                     return true;
                 }
             }
 
             if (Plugin.Config.AllOres)
             {
-                //Log.Info(string.Format("Asteroid at X:{0} Y:{1} Z:{2} ({3}): in space, all ores: keep", p.X, p.Y, p.Z, string.Join("/", ores)));
+                if (Plugin.Config.Debug) Log.Info($"Asteroid at X:{p.X} Y:{p.Y} Z:{p.Z} ({oresList}): in space, all ores: keep");
                 return true;
             }
             foreach (var ore in ores)
             {
                 if (!Plugin.Config.Ores.Contains(ore))
                 {
-                    //Log.Info(string.Format("Asteroid at X:{0} Y:{1} Z:{2} ({3}): in space, does not contain {4}: remove", p.X, p.Y, p.Z, string.Join("/", ores), ore));
+                    if (Plugin.Config.Debug) Log.Info($"Asteroid at X:{p.X} Y:{p.Y} Z:{p.Z} ({oresList}): in space, does not contain {ore}: remove");
                     return false;
                 }
             }
-            //Log.Info(string.Format("Asteroid at X:{0} Y:{1} Z:{2} ({3}): in space, contains desired ores {4}: keep", p.X, p.Y, p.Z, string.Join("/", ores), string.Join("/", Plugin.Config.Ores)));
+            if (Plugin.Config.Debug)
+            {
+                var pluginConfigOresList = string.Join("/", Plugin.Config.Ores);
+                Log.Info($"Asteroid at X:{p.X} Y:{p.Y} Z:{p.Z} ({oresList}): in space, contains desired ores {pluginConfigOresList}: keep");
+            }
             return true;
         }
 

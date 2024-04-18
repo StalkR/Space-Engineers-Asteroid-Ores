@@ -82,7 +82,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Communication.cs" />
     <Compile Include="Check.cs" />
     <Compile Include="Patch_GenerateObjects.cs" />
     <Compile Include="Plugin.cs" />
