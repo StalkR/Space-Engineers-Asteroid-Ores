@@ -1,0 +1,48 @@
+name: release_mod
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup
+        run: |
+          echo steam steam/question select "I AGREE" | sudo debconf-set-selections
+          echo steam steam/license note '' | sudo debconf-set-selections
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends ca-certificates locales steamcmd
+          sudo locale-gen en_US.UTF-8
+          sudo ln -s /usr/games/steamcmd /usr/bin/steamcmd
+          mkdir -p "$HOME/.steam"
+          steamcmd +quit
+          rm -rf "$HOME/Steam/logs"
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          LANG: en_US.UTF-8
+
+      - name: upload
+        run: |
+          mkdir -p "$HOME/Steam/config"
+          echo "$STEAM_CONFIG_VDF" > "$HOME/Steam/config/config.vdf"
+          find "$UPLOAD_DIR" -name '*.csproj' -delete
+          vdf=$(find "$UPLOAD_DIR" -name '*.vdf')
+          [[ $(wc -l <<< "$vdf") -eq 1 ]]
+          mv "$vdf" item.vdf
+          sed -i "s#\"contentfolder\" \"#\0${PWD}/${UPLOAD_DIR}/#" item.vdf
+          sed -i "s#\"previewfile\" \"#\0${PWD}/${UPLOAD_DIR}/#" item.vdf
+          steamcmd +login "$STEAM_USERNAME" +workshop_build_item "$PWD/item.vdf" +quit || {
+            cat "$HOME/Steam/logs/workshop_log.txt"
+            false
+          }
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+          UPLOAD_DIR: Mod
+
+      - name: cleanup
+        run: rm -rf "$HOME/Steam"

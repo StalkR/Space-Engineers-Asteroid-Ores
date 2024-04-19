@@ -82,13 +82,4 @@
     <Compile Include="Data\Scripts\AsteroidOres\Mod.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-      del "$(ProjectDir)$(OutDir)AsteroidOresMod.dll"
-      xcopy /y /d /e /i "$(ProjectDir)Data" "$(ProjectDir)$(OutDir)Data"
-      xcopy /y /d "$(ProjectDir)metadata.mod" "$(ProjectDir)$(OutDir)"
-      xcopy /y /d "$(ProjectDir)modinfo.sbmi" "$(ProjectDir)$(OutDir)"
-      powershell Compress-Archive -Path "$(ProjectDir)$(OutDir)*" -DestinationPath "$(ProjectDir)$(OutDir)AsteroidOresMod.zip" -Force
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>
