@@ -82,7 +82,7 @@ namespace StalkR.AsteroidOres
 
         public static void Log(string message)
         {
-            MyLog.Default.WriteLineAndConsole(message);
+            //MyLog.Default.WriteLineAndConsole(message);
         }
     }
 }
