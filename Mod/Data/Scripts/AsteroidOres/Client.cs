@@ -68,7 +68,7 @@ namespace StalkR.AsteroidOres
             }
             if (msg.removed != null && msg.removed.Count > 0)
             {
-                Mod.Log($"AsteroidOres: server sent ({msg.removed.Count}) active");
+                Mod.Log($"AsteroidOres: server sent ({msg.removed.Count}) removed");
                 foreach (var entityId in msg.removed)
                 {
                     if (!pendingEntities.ContainsKey(entityId)) continue;
