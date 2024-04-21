@@ -80,6 +80,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Scripts\AsteroidOres\Mod.cs" />
+    <Compile Include="Data\Scripts\AsteroidOres\Client.cs" />
+    <Compile Include="Data\Scripts\AsteroidOres\Server.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
