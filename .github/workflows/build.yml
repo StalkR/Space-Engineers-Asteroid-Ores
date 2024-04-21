@@ -20,8 +20,8 @@ jobs:
       - name: setup Torch
         shell: bash
         run: |
-          mkdir TorchBinaries
-          cd TorchBinaries
+          mkdir .TorchBinaries
+          cd .TorchBinaries
           curl 'https://build.torchapi.com/job/Torch/job/master/lastSuccessfulBuild/artifact/bin/torch-server.zip' > torch.zip
           unzip torch.zip
 
@@ -39,7 +39,7 @@ jobs:
           echo 'regex:^DedicatedServer64/' > filelist.txt
           # https://steamdb.info/app/298740/depots/
           depotdownloader/DepotDownloader.exe -app 298740 -depot 298741 -filelist filelist.txt -dir .
-          mv DedicatedServer64 GameBinaries
+          mv DedicatedServer64 .GameBinaries
 
       - name: setup dotnet
         uses: actions/setup-dotnet@v4
