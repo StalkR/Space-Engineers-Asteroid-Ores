@@ -2,7 +2,6 @@ using ProtoBuf;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
-using System.Linq;
 using VRage.ModAPI;
 
 namespace StalkR.AsteroidOres
@@ -12,6 +11,13 @@ namespace StalkR.AsteroidOres
         private HashSet<long> active = new HashSet<long>();
         private HashSet<long> pending = new HashSet<long>();
         private Dictionary<long, IMyEntity> pendingEntities = new Dictionary<long, IMyEntity>();
+
+        public void UnloadData()
+        {
+            active.Clear();
+            pending.Clear();
+            pendingEntities.Clear();
+        }
 
         public void OnEntityAdd(IMyEntity entity)
         {

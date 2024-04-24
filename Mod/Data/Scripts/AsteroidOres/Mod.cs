@@ -1,6 +1,7 @@
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.ModAPI;
 using VRage.Utils;
@@ -10,6 +11,7 @@ namespace StalkR.AsteroidOres
     // ISide abstracts each side (client/server) implementations.
     interface ISide
     {
+        void UnloadData();
         void OnEntityAdd(IMyEntity entity);
         void OnEntityRemove(IMyEntity entity);
         void UpdateBeforeSimulation100();
@@ -24,22 +26,29 @@ namespace StalkR.AsteroidOres
 
         public override void LoadData()
         {
-            base.LoadData();
-            if (MyAPIGateway.Multiplayer.IsServer) side = new Server();
+            MyLog.Default.WriteLineAndConsole($"AsteroidOres: LoadData: mod loading");
+            var isServer = MyAPIGateway.Session.OnlineMode == MyOnlineModeEnum.OFFLINE
+                || MyAPIGateway.Multiplayer.IsServer
+                || MyAPIGateway.Utilities.IsDedicated;
+            if (isServer) side = new Server();
             else side = new Client();
             MyAPIGateway.Multiplayer.RegisterSecureMessageHandler(MOD_ID, side.OnMessage);
+            MyLog.Default.WriteLineAndConsole($"AsteroidOres: LoadData: mod loaded (isServer: {isServer})");
         }
 
         protected override void UnloadData()
         {
-            base.UnloadData();
+            MyLog.Default.WriteLineAndConsole($"AsteroidOres: UnloadData: mod unloading");
             MyAPIGateway.Entities.OnEntityAdd -= side.OnEntityAdd;
             MyAPIGateway.Entities.OnEntityRemove -= side.OnEntityRemove;
             MyAPIGateway.Multiplayer.UnregisterSecureMessageHandler(MOD_ID, side.OnMessage);
+            side.UnloadData();
+            MyLog.Default.WriteLineAndConsole($"AsteroidOres: UnloadData: mod unloaded");
         }
 
         public override void BeforeStart()
         {
+            MyLog.Default.WriteLineAndConsole($"AsteroidOres: BeforeStart: mod starting");
             HashSet<IMyEntity> entities = new HashSet<IMyEntity>();
             MyAPIGateway.Entities.GetEntities(entities, (IMyEntity entity) =>
             {
@@ -48,6 +57,7 @@ namespace StalkR.AsteroidOres
             });
             MyAPIGateway.Entities.OnEntityAdd += side.OnEntityAdd;
             MyAPIGateway.Entities.OnEntityRemove += side.OnEntityRemove;
+            MyLog.Default.WriteLineAndConsole($"AsteroidOres: BeforeStart: mod started");
         }
 
         private int ticks = 0;

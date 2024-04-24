@@ -10,6 +10,11 @@ namespace StalkR.AsteroidOres
     {
         private HashSet<long> tracked = new HashSet<long>();
 
+        public void UnloadData()
+        {
+            tracked.Clear();
+        }
+
         public void OnEntityAdd(IMyEntity entity)
         {
             if (!(entity is MyVoxelBase)) return;
