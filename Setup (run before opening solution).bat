@@ -17,7 +17,7 @@ mklink /J .GameBinaries "%path%"
 if errorlevel 1 goto Error
 echo Done!
 
-echo You can now open the plugin without issue.
+echo You can now open the solution without issue.
 goto EndFinal
 
 :Error
