@@ -48,6 +48,8 @@ namespace StalkR.AsteroidOres
         public void UpdateBeforeSimulation100()
         {
             if (pending.Count == 0) return;
+            // Wait for session/player/character to finish loading before asking server (#11).
+            if (MyAPIGateway.Session?.Player?.Character == null) return;
             Mod.Log($"AsteroidOres: ask server for {pending.Count} pending");
             Mod.SendMessageToServer(MyAPIGateway.Utilities.SerializeToBinary(new Message { pending = pending }));
         }
@@ -55,6 +57,8 @@ namespace StalkR.AsteroidOres
         public void OnMessage(ushort handlerId, byte[] serialized, ulong senderPlayerId, bool isArrivedFromServer)
         {
             if (!isArrivedFromServer) return;
+            // It seems we cannot remove asteroids without a character (#11).
+            if (MyAPIGateway.Session?.Player?.Character == null) return;
             var msg = MyAPIGateway.Utilities.SerializeFromBinary<Server.Message>(serialized);
             if (msg.active != null && msg.active.Count > 0)
             {
