@@ -17,6 +17,7 @@ namespace StalkR.AsteroidOres
             this.active = new HashSet<long>();
             this.pending = new HashSet<long>();
             this.pendingEntities = new Dictionary<long, IMyEntity>();
+	    this.spawned = false;
 
             Mod.Log($"AsteroidOres: Client up");
         }
