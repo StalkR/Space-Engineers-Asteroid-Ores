@@ -45,10 +45,13 @@ namespace StalkR.AsteroidOres
                 active = new HashSet<long>(),
                 removed = new HashSet<long>(),
             };
+
             foreach (var entityId in request.pending)
             {
-                if (tracked.Contains(entityId)) response.active.Add(entityId);
-                else response.removed.Add(entityId);
+                if (tracked.Contains(entityId))
+                    response.active.Add(entityId);
+                else
+                    response.removed.Add(entityId);
             }
             Mod.Log($"AsteroidOres: {senderPlayerId} asked {request.pending.Count} pending, responded {response.active.Count} active and {response.removed.Count} removed");
             Mod.SendMessageTo(MyAPIGateway.Utilities.SerializeToBinary(response), senderPlayerId);
