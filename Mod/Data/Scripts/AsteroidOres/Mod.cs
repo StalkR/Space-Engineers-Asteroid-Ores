@@ -1,4 +1,5 @@
 using Sandbox.Game.Entities;
+using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game;
@@ -56,9 +57,11 @@ namespace StalkR.AsteroidOres
                 return false;
             });
             MyAPIGateway.Entities.OnEntityAdd += side.OnEntityAdd;
-            MyAPIGateway.Entities.OnEntityRemove += side.OnEntityRemove;
+            MyAPIGateway.Entities.OnEntityRemove += side.OnEntityRemove;            
             MyLog.Default.WriteLineAndConsole($"AsteroidOres: BeforeStart: mod started");
         }
+
+        
 
         private int ticks = 0;
         public override void UpdateBeforeSimulation()
