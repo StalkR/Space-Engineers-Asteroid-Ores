@@ -2,36 +2,39 @@ using ProtoBuf;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
+using System.Linq;
+using VRage.Collections;
 using VRage.ModAPI;
 
 namespace StalkR.AsteroidOres
 {
     public class Client : ISide
     {
-        private HashSet<long> active = new HashSet<long>();
-        private HashSet<long> pending = new HashSet<long>();
-        private Dictionary<long, IMyEntity> pendingEntities = new Dictionary<long, IMyEntity>();
+        private MyConcurrentHashSet<long> active = new MyConcurrentHashSet<long>();
+        private MyConcurrentDictionary<long, IMyEntity> pending = new MyConcurrentDictionary<long, IMyEntity>();
+        private bool isLoadingComplete = false;
 
         public void UnloadData()
         {
             active.Clear();
             pending.Clear();
-            pendingEntities.Clear();
+            isLoadingComplete = false;
         }
 
         public void OnEntityAdd(IMyEntity entity)
         {
             if (!(entity is MyVoxelBase)) return;
             if (!Mod.isAsteroid(entity as MyVoxelBase)) return;
+            if (active.Contains(entity.EntityId)) return;
             var p = entity.GetPosition();
-            Mod.Log($"AsteroidOres: add X:{p.X} Y:{p.Y} Z:{p.Z}");
-            if (!active.Contains(entity.EntityId))
-            {
-                pending.Add(entity.EntityId);
-                pendingEntities.Add(entity.EntityId, entity);
-                entity.Render.UpdateRenderObject(false);
-                entity.Physics.Deactivate();
-            }
+            Mod.Log($"AsteroidOres: add X:{p.X} Y:{p.Y} Z:{p.Z} IsLoadingComplete:{isLoadingComplete}");
+            pending.Add(entity.EntityId, entity);
+            // During loading, do not touch entities or game hangs at 50% (#11).
+            // It is fine as they will be removed quickly enough.
+            // After game is loaded, we want to handle them immediately to avoid flickering.
+            if (!isLoadingComplete) return;
+            entity.Render.UpdateRenderObject(false);
+            entity.Physics.Deactivate();
         }
 
         public void OnEntityRemove(IMyEntity entity)
@@ -42,37 +45,34 @@ namespace StalkR.AsteroidOres
             Mod.Log($"AsteroidOres: remove X:{p.X} Y:{p.Y} Z:{p.Z}");
             active.Remove(entity.EntityId);
             pending.Remove(entity.EntityId);
-            pendingEntities.Remove(entity.EntityId);
         }
 
         public void UpdateBeforeSimulation100()
         {
             if (pending.Count == 0) return;
-            // Wait for session/player/character to finish loading before asking server (#11).
-            if (MyAPIGateway.Session?.Player?.Character == null) return;
             Mod.Log($"AsteroidOres: ask server for {pending.Count} pending");
-            Mod.SendMessageToServer(MyAPIGateway.Utilities.SerializeToBinary(new Message { pending = pending }));
+            var msg = new Message { pending = pending.Keys.ToHashSet<long>() };
+            Mod.SendMessageToServer(MyAPIGateway.Utilities.SerializeToBinary(msg));
         }
 
         public void OnMessage(ushort handlerId, byte[] serialized, ulong senderPlayerId, bool isArrivedFromServer)
         {
             if (!isArrivedFromServer) return;
-            // It seems we cannot remove asteroids without a character (#11).
-            if (MyAPIGateway.Session?.Player?.Character == null) return;
+            // Consider game loading complete when we receive the first message from server.
+            isLoadingComplete = true;
             var msg = MyAPIGateway.Utilities.SerializeFromBinary<Server.Message>(serialized);
+            IMyEntity entity;
             if (msg.active != null && msg.active.Count > 0)
             {
                 Mod.Log($"AsteroidOres: server sent ({msg.active.Count}) active");
                 foreach (var entityId in msg.active)
                 {
-                    if (!pendingEntities.ContainsKey(entityId)) continue;
-                    var entity = pendingEntities[entityId];
+                    if (!pending.TryRemove(entityId, out entity)) continue;
                     var p = entity.GetPosition();
                     Mod.Log($"AsteroidOres: activate X:{p.X} Y:{p.Y} Z:{p.Z}");
                     entity.Render.UpdateRenderObject(true);
                     entity.Physics.Activate();
                     pending.Remove(entityId);
-                    pendingEntities.Remove(entityId);
                     active.Add(entity.EntityId);
                 }
             }
@@ -81,12 +81,10 @@ namespace StalkR.AsteroidOres
                 Mod.Log($"AsteroidOres: server sent ({msg.removed.Count}) removed");
                 foreach (var entityId in msg.removed)
                 {
-                    if (!pendingEntities.ContainsKey(entityId)) continue;
-                    var entity = pendingEntities[entityId];
+                    if (!pending.TryRemove(entityId, out entity)) continue;
                     var p = entity.GetPosition();
                     Mod.Log($"AsteroidOres: remove X:{p.X} Y:{p.Y} Z:{p.Z}");
                     pending.Remove(entityId);
-                    pendingEntities.Remove(entityId);
                     entity.Delete();
                 }
             }
