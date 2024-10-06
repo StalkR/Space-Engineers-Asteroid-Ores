@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir depotdownloader
           cd depotdownloader
-          curl -L 'https://github.com/SteamRE/DepotDownloader/releases/download/DepotDownloader_2.5.0/depotdownloader-2.5.0.zip' > depotdownloader.zip
+          curl -L 'https://github.com/SteamRE/DepotDownloader/releases/download/DepotDownloader_2.7.2/DepotDownloader-windows-x64.zip' > depotdownloader.zip
           unzip depotdownloader.zip
 
       - name: setup Space Engineers
