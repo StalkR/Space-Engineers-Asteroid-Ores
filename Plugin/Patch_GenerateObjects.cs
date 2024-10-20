@@ -73,12 +73,12 @@ namespace StalkR.AsteroidOres
                     code[++j].opcode == OpCodes.Call && code[j].operand.ToString() == "VRageMath.Vector3I GetAsteroidVoxelSize(Double)" &&
                     code[++j].opcode == OpCodes.Newobj &&
                     code[++j].opcode == OpCodes.Stloc_S &&
-                    code[i - 152 + 287].opcode == OpCodes.Leave_S)
+                    code[i - 152 + 279].opcode == OpCodes.Leave_S) // 279 0379 leave.s    284 (0389) ldloca.s V_0 (0)
                 {
                     // intercept after: MyCompositeShapeProvider shapeProvider = CreateAsteroidShape()
                     found = i + 170 - 152;
                     // label where `if (flag) continue` goes, so we can skip asteroid generation
-                    code[i - 152 + 287].labels.Add(continueLabel);
+                    code[i - 152 + 279].labels.Add(continueLabel);
                 }
             }
             if (found == -1)
