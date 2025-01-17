@@ -43,8 +43,9 @@ There are 2 main sections:
 - zones
   - asteroid spherical field: specify center and max radius
   - asteroid hollow spherical field: also specify a min radius
-  - asteroid ring: also specify a height, and set the planet's CloudLayer with
-    RotationAxis 0/0/0 so it's aligned on the Y plane; gives a washer shape
+  - asteroid ring: also specify a height and height plane, gives a washer shape
+    - example: a planet's CloudLayer with RotationAxis 0/0/0 would have its
+      asteroid ring on the Y plane
 
 ### Example
 
@@ -52,8 +53,8 @@ Imagine we want the following:
 - empty space, no asteroids
   - use: `<AllOres>false</AllOres>` then list no ores
 - an asteroid ring with all ores except `Platinum`
-  - use: `<Center>`, `<MinRadius>`, `<MaxRadius>` and `<Height>` to define the
-    asteroid ring characteristics
+  - use: `<Center>`, `<MinRadius>`, `<MaxRadius>`, `<Height>` and
+    `<HeightPlane>` to define the asteroid ring characteristics
   - use: `<AllOres>false</AllOres>` then list all ores except `Platinum`
 - an asteroid cluster with all ores
   - use: `<Center>` and `<MaxRadius>` to define the spherical field
@@ -72,7 +73,7 @@ The config then looks like this:
 
   <Zones>
 
-    <!-- an asteroid ring around planet X:0 Y:0 Z:0, min 130km, max 80km, height 10km, with all ores except Platinum -->
+    <!-- an asteroid ring around planet X:0 Y:0 Z:0, min 130km, max 80km, height 10km on the Y plane, with all ores except Platinum -->
     <Zone>
       <AllOres>false</AllOres>
       <Ores>
@@ -95,6 +96,7 @@ The config then looks like this:
       <MaxRadius>130000</MaxRadius>
       <MinRadius>80000</MinRadius>
       <Height>10000</Height>
+      <HeightPlane>Y</HeightPlane>
     </Zone>
 
     <!-- an asteroid cluster centered on X:1000000 Y:1000000 Z:1000000 of radius 100km, with all ores -->
